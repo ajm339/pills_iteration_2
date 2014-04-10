@@ -4,7 +4,7 @@ $( document ).ready(function() {
     //list of associated tags to send back
     var tag_list = new Array();
     //grab interest tag options
-    //IF SENDING FOR PILL INFORMATION:
+    //IF CALLING FOR PILL INFORMATION:
     // $.ajax({
     //     url: Query for tags here,
     //     type: 'GET',
@@ -39,15 +39,47 @@ $( document ).ready(function() {
         "travel": 164567458
     };
 
-    writePills(interests_list);
+    //for the demonstration of preselected interests
+    initial_interests = {
+        "design": 3350845,
+        "science": 13234523,
+        "travel": 164567458
+    };
+
+    //Only have one of the writePills method uncommented
+    //writePills(interests_list);
+    writePills(interests_list, initial_interests);
     selectPills();
 
-    function writePills(pillData){
+    //writePills with no preselected interests
+    // function writePills(pillData){
+    //     for (var key in pillData){
+    //         $('#pills_list').append("<div class='pill' id=" + key + " data-id=" + pillData[key] + ">" + key + "</div>");
+    //     }
+    // }
+
+    //writePills with preselected interests
+    function writePills(pillData, initialPills){
         for (var key in pillData){
-            $('#pill_box_unselected').append("<div class='pill' id=" + key + " data-id=" + pillData[key] + ">" + key + "</div>");
-            $('#pill_box_selected').append("<div class='pill selected' id=" + key + " data-id=" + pillData[key] + ">" + key + "</div>");
+            var className = '';
+            if(initialPills[key]!=null){
+                className = 'pill selected';
+                tag_list.push(initialPills[key]);
+            } else {
+                className = 'pill';
+            }
+            $('#pills_list').append("<div class='" + className + "' id=" + key + " data-id=" + pillData[key] + ">" + key + "</div>");
         }
-        $('.pill.selected').hide();
+        console.log('Initial Interests');
+        console.log(tag_list);
+    }
+
+    //function for if someone grabs initial interests of a user and wants to denote these previously selected interests
+    function preselectPills(initialPills){
+        for (var key in initialPills){
+            $('.pill').data('id')
+            $('#pills_list').append("<div class='pill' id=" + key + " data-id=" + initialPills[key] + ">" + key + "</div>");
+        }
     }
 
     function selectPills(){
@@ -56,19 +88,16 @@ $( document ).ready(function() {
             var tag_id = $(this).data('id');
             var parent = $(this).parent().attr('id');
 
-            if(parent=='pill_box_unselected'){
-                $(this).hide();
-                var new_pill = $('#pill_box_selected').find("#" + tag_name);
-                new_pill.show();
-                tag_list.push(tag_id);
-            } else if(parent == 'pill_box_selected'){
-                $(this).hide();
-                var new_pill = $('#pill_box_unselected').find("#" + tag_name);
-                new_pill.show();
+            //if the pill is being deselected, remove it from the tag_list
+            //else it is being selected and should be added to the tag_list
+            if($(this).attr('class')=='pill selected'){
                 var index = tag_list.indexOf(tag_id);
                 tag_list.splice(index, 1);
+            } else {
+                tag_list.push(tag_id);
             }
-            //Show which tag ids are being processed
+            $(this).toggleClass('selected');
+
             console.log("Current Tag IDs being passed.");
             console.log(tag_list);
         });
